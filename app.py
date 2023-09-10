@@ -41,3 +41,40 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+
+# Create Registration and Login Routes
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        existing_user = mongo.db.users.find_one(
+            {'username': form.username.data})
+        if existing_user is None:
+            hashed_password = bcrypt.hashpw(
+                form.password.data.encode('utf-8'), bcrypt.gensalt())
+            mongo.db.users.insert_one({
+                'username': form.username.data,
+                'email': form.email.data,
+                'password': hashed_password
+            })
+            flash('Registration successful. You can now log in.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Username already exists. Please choose another.', 'danger')
+    return render_template('register.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = mongo.db.users.find_one({'username': form.username.data})
+        if user and bcrypt.checkpw(form.password.data.encode('utf-8'), user['password']):
+            user_obj = User(user['username'], user['email'], user['password'])
+            login_user(user_obj)
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid login credentials. Please try again.', 'danger')
+    return render_template('login.html', form=form)
