@@ -1,3 +1,13 @@
-Flask
-pymongo
-dnspython
+bcrypt==4.0.1
+blinker==1.6.2
+click==8.1.7
+dnspython==2.4.2
+email-validator==2.0.0.post2
+Flask==2.3.3
+Flask-Login==0.6.2
+Flask-PyMongo==2.3.0
+Flask-WTF==1.1.1
+itsdangerous==2.1.2
+pymongo==4.5.0
+Werkzeug==2.3.7
+WTForms==3.0.1
