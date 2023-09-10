@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
@@ -5,16 +6,21 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_pymongo import PyMongo
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import bcrypt
+if os.path.exists("env.py"):
+    import env
 
 # Setting up Flask app to connect with mongodb
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['MONGO_URI'] = 'mongodb://localhost/your_database_name'
+
+app.config["MONGO_DBNAME"] = os.environ.get("MONGO_DBNAME")
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
+app.secret_key = os.environ.get("SECRET_KEY")
 
 mongo = PyMongo(app)
 
-# User class will represent user objects and include methods required for user authentication:
+# User class will represent user objects and include methods required for user
+# authentication:
 
 
 class User(UserMixin):
@@ -78,3 +84,8 @@ def login():
         else:
             flash('Invalid login credentials. Please try again.', 'danger')
     return render_template('login.html', form=form)
+
+    # Run flask app
+
+    if __name__ == '__main__':
+        app.run(debug=True)
